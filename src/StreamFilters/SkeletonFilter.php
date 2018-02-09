@@ -110,13 +110,13 @@ class SkeletonFilter extends AbstractFilter
         if (count($matches) != 1) {
             throw new GeneratorException(sprintf('Could not find last index for stucture %s. Cannot generate proxy skeleton.', $structureName));
         }
-
+error_log(var_export($matches, true));
         $offset = (strlen(reset($matches)) - 1);
         // get a parser util and get the bracket span
         $parserUtil = new Parser();
-        $structureSpan = $parserUtil->getBracketSpan($code, '{', $offset);
+        $structureSpan = $parserUtil->getBracketSpan($code, '{');
 
-        return (($structureSpan + $offset) - 1);
+        return $structureSpan + $offset;
     }
 
     /**

@@ -77,11 +77,10 @@ class Parser
      *
      * @param string  $string      String to investigate
      * @param string  $bracketType A bracket to be taken as general bracket type e.g. '('
-     * @param integer $offset      Offset at which to start looking, will default to 0
      *
      * @return integer
      */
-    public function getBracketSpan($string, $bracketType, $offset = 0)
+    public function getBracketSpan($code, $bracketType)
     {
         // prepare opening and closing bracket according to bracket type
         switch ($bracketType) {
@@ -107,11 +106,40 @@ class Parser
                 throw new \Exception(sprintf('Unrecognized bracket type %s', $bracketType));
         }
 
+        $tokens = token_get_all('<?php ' . $code);
+
+        $bracketCounter = null;
+        $arrayLength = count($tokens);
+        $firstBracket = 0;
+        $tmpString = '';
+        $enclosureIndex = 0;
+        for ($i = 0; $i < $arrayLength; $i++) {
+            // count different bracket types by de- and increasing the counter
+            if ($tokens[$i] === $openingBracket) {
+                if (is_null($bracketCounter)) {
+                    $firstBracket = $i;
+                }
+                $bracketCounter = (int) $bracketCounter + 1;
+
+            } elseif ($tokens[$i] === $closingBracket) {
+                $bracketCounter = (int) $bracketCounter - 1;
+            }
+
+            // if we reach 0 again we have a completely enclosed string
+            if ($bracketCounter === 0 && $enclosureIndex === 0) {
+                $enclosureIndex = strlen($tmpString) - 7;error_log($tmpString);
+            }
+
+            $tmpString .= is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
+        }
+        error_log('bracket count is ' . $bracketCounter. ' encosure is ' . $enclosureIndex);
+/*
         // split up the string and analyse it character for character
         $bracketCounter = null;
         $stringArray = str_split($string);
         $strlen = strlen($string);
         $firstBracket = 0;
+        $enclosureIndex = 0;
         for ($i = $offset; $i < $strlen; $i++) {
             // count different bracket types by de- and increasing the counter
             if ($stringArray[$i] === $openingBracket) {
@@ -125,12 +153,16 @@ class Parser
             }
 
             // if we reach 0 again we have a completely enclosed string
-            if ($bracketCounter === 0) {
-                return $i + 1 - $firstBracket;
+            if ($bracketCounter === 0 && $enclosureIndex === 0) {
+                $enclosureIndex = $i;
             }
         }
-
-        return 0;
+        error_log('bracket count is ' . $bracketCounter. ' encosure is ' . $enclosureIndex);*/
+        // if we reach 0 again we have a completely enclosed string
+        if ($bracketCounter === 0) {
+            return $enclosureIndex - $firstBracket;
+        }
+        throw new \Exception('The bracket count does not match, bracket span could not be determined');
     }
 
     /**

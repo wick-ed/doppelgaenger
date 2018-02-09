@@ -23,6 +23,7 @@ namespace AppserverIo\Doppelgaenger\Tests\Functional;
 use AppserverIo\Doppelgaenger\Tests\Data\AroundAdviceTestClass;
 use AppserverIo\Doppelgaenger\Tests\Data\GeneratorTest\CustomProcessingTestClass;
 use AppserverIo\Doppelgaenger\Tests\Data\GeneratorTest\LocalCustomProcessingTestClass;
+use AppserverIo\Doppelgaenger\Tests\Data\GeneratorTest\StructureEndingWithCurlyBracesInCommentsTestClass;
 use AppserverIo\Doppelgaenger\Tests\Data\TagPlacementTestClass;
 use AppserverIo\Doppelgaenger\Tests\Data\GeneratorTest\RecursionTestClass2;
 use AppserverIo\Doppelgaenger\Tests\Data\GeneratorTest\BasicTestClass;
@@ -212,5 +213,13 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
     public function testMethodVariantFatalErrors()
     {
         $testClass = new MethodVariantionsTestClass();
+    }
+
+    /**
+     * Test if we can generate proxies of classes which contain comments with special tokens such as curly brackets
+     */
+    public function testStructureEndingWithCurlyBracesInComments()
+    {
+        $testClass = new StructureEndingWithCurlyBracesInCommentsTestClass();
     }
 }
